@@ -80,4 +80,62 @@
 
         <span class="text-muted small">Salva e carica usano il Local Storage del browser.</span>
     </div>
+
+    <hr class="my-3" />
+
+    <div class="d-flex flex-wrap align-items-center gap-2">
+        <span class="fw-semibold me-2">Server:</span>
+
+        <button
+            type="button"
+            class="btn btn-outline-primary"
+            [disabled]="inCorso()"
+            (click)="salvaSulServer()"
+        >
+            <i class="bi bi-cloud-arrow-up me-1"></i>Salva sul server
+        </button>
+
+        <select
+            class="form-select form-select-sm w-auto"
+            aria-label="Topologie salvate sul server"
+            [disabled]="inCorso() || elencoServer().length == 0"
+            (change)="scegli($event)"
+        >
+            @if (elencoServer().length == 0) {
+            <option value="">(nessuna topologia sul server)</option>
+            } @else {
+            @for (salvata of elencoServer(); track salvata.id) {
+            <option [value]="salvata.id" [selected]="salvata.id == idScelto()">
+                {{ salvata.nome }} — {{ salvata.creata_il | date: 'dd/MM/yy HH:mm' }}
+            </option>
+            }
+            }
+        </select>
+
+        <button
+            type="button"
+            class="btn btn-outline-primary"
+            [disabled]="inCorso() || idScelto() == null"
+            (click)="apriDalServer()"
+        >
+            <i class="bi bi-cloud-arrow-down me-1"></i>Apri dal server
+        </button>
+
+        <button
+            type="button"
+            class="btn btn-outline-danger"
+            [disabled]="inCorso() || idScelto() == null"
+            (click)="eliminaDalServer()"
+        >
+            <i class="bi bi-trash me-1"></i>Elimina dal server
+        </button>
+
+        @if (serverAttivo() == false) {
+        <span class="text-danger small">
+            Server non raggiungibile: avvia <code>docker compose up -d</code> in esame_backend.
+        </span>
+        } @else {
+        <span class="text-muted small">{{ elencoServer().length }} topologie salvate sul server.</span>
+        }
+    </div>
 </div>

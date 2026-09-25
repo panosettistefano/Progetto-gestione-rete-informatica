@@ -29,7 +29,7 @@ Lo sviluppo è diviso in **due fasi**:
 - [x] le linee si aggiornano automaticamente quando un dispositivo viene spostato
 - [x] **click destro** su un dispositivo → dettaglio (nome, tipo, IP, hostname, stato) in una **sidebar**
 - [x] modalità **Edit / Connect** separate (bonus avanzato)
-- [ ] **salva / carica / cancella topologia**: su Local Storage **fatto** (M7), sul server in fase 2 (B4)
+- [x] **salva / carica / cancella topologia**: su Local Storage (M7) e sul server con REST + MySQL (B4)
 - [ ] `README.md` con descrizione, tecnologie, architettura, modello dati, istruzioni di avvio e
       **screenshot reali** in `docs/`
 
@@ -80,12 +80,16 @@ src/
     types/connessione.ts            Connessione
     types/collegamento.ts           Collegamento (riga "collegamenti" della sidebar)
     types/topologia.ts              Topologia (payload salvato/caricato, con "versione")
+    types/topologia-salvata.ts      TopologiaSalvata (riga dell'elenco del server)
     services/topologia-service.ts   stato a signals + tutta la logica della topologia
     services/persistenza-service.ts unico punto che tocca localStorage
-    components/strumenti/           pulsanti: aggiungi dispositivo, modalità, salva/carica/cancella
+    services/topologia-api-service.ts  unico punto che parla con l'API REST
+    components/strumenti/           pulsanti: aggiungi dispositivo, modalità, salva/carica/cancella,
+                                    salva sul server / apri dal server / elimina dal server
     components/canvas/              canvas: dispositivi trascinabili + overlay <svg> delle linee
     components/dettaglio/           sidebar di dettaglio (click destro) con eliminazione
     app.ts|html|css                 navbar + i tre componenti
+  proxy.conf.json                   in sviluppo "/api" viene girato su http://localhost:3000
 ```
 
 ### Stato del `TopologiaService`
@@ -230,12 +234,73 @@ Tabelle: `topologie`, `dispositivi` (FK su topologia, `ON DELETE CASCADE`), `con
 Endpoint: `GET /api/topologie`, `GET /api/topologie/:id`, `POST /api/topologie`,
 `PUT /api/topologie/:id`, `DELETE /api/topologie/:id`, `GET /api/health`.
 
+### Cosa si scambiano frontend e API
+
+Il corpo di `POST` e `PUT` è la topologia del frontend (`nome`, `dispositivi`, `connessioni`); `versione`
+e `id` del corpo vengono ignorati. La risposta è la topologia **salvata**, nella forma che il frontend
+si aspetta già:
+
+```json
+{
+    "id": 2,
+    "nome": "Rete aula 3",
+    "creata_il": "2026-09-25T13:37:27.000Z",
+    "dispositivi": [{ "id": 5, "tipo": "Router", "nome": "Router-01", "x": 600, "y": 120,
+                      "ip": "192.168.1.201", "hostname": "router-01", "stato": "Online" }],
+    "connessioni": [{ "id": 4, "sourceId": 5, "targetId": 6 }]
+}
+```
+
+Il database tiene le colonne in italiano (`sorgente_id`, `destinazione_id`) e l'API le rinomina in
+`sourceId`/`targetId`: la traduzione sta tutta qui, così il modello dati del frontend non cambia.
+Gli id dei dispositivi li assegna il database: il server rimappa i collegamenti con una `Map`
+(vecchio id → nuovo id) e restituisce la topologia salvata, che il frontend usa per rinfrescare lo
+stato — è la contromisura alla trappola "id diversi fra client e database".
+
+### Come il frontend parla con l'API (B4)
+
+```ts
+@Service()
+export class TopologiaApiService {
+    elenco(): Promise<TopologiaSalvata[]>   // GET    /api/topologie
+    apri(varId: number): Promise<Topologia> // GET    /api/topologie/:id
+    salva(varTopologia): Promise<Topologia> // POST   /api/topologie  (la risposta rimappa gli id)
+    elimina(varId: number): Promise<void>   // DELETE /api/topologie/:id
+}
+```
+
+- `provideHttpClient()` in `app.config.ts`: è l'unica aggiunta all'avvio dell'app.
+- In sviluppo la toolbar chiama `/api/topologie` sulla **stessa origine** (porta 4200) e ci pensa
+  `proxy.conf.json`, richiamato da `"proxyConfig"` nelle opzioni di `serve` in `angular.json`: niente
+  CORS, niente URL assoluto da cambiare fra sviluppo e produzione.
+- La toolbar (`components/strumenti`) è **smart**: tiene `elencoServer`, `idScelto`, `serverAttivo` e
+  `inCorso` come signals, legge l'elenco in `ngOnInit` e passa ogni lavoro a `esegui()`, che accende
+  `inCorso` (disabilita i pulsanti), cattura gli errori e li traduce in un messaggio leggibile
+  (`status == 0` → "server non raggiungibile, avvia `docker compose up -d`").
+- Dopo un salvataggio il frontend **riapplica la topologia tornata dal server**
+  (`service.applicaTopologia(salvata)`): il canvas resta identico a schermo, ma gli id diventano quelli
+  del database, quindi salvare due volte di seguito non duplica nulla.
+
+Comandi utili per provare a mano (database e API accesi):
+
+```bash
+curl localhost:3000/api/health
+curl localhost:3000/api/topologie
+curl localhost:3000/api/topologie/1
+curl -X POST localhost:3000/api/topologie -H 'Content-Type: application/json' -d @topologia.json
+curl -X DELETE localhost:3000/api/topologie/2
+```
+
+Esiti previsti: `400` corpo non valido o id non numerico, `404` topologia inesistente, `503` su
+`/api/health` se il database è spento, `500` per un errore del database (con `rollback` della
+transazione, quindi senza righe a metà).
+
 | # | Stato | Obiettivo |
 |---|---|---|
-| **B1** | da fare | `docker-compose.yml` con il servizio `db` + `db/init.sql` |
-| **B2** | da fare | API Express con pool MySQL e i 6 endpoint (verifica con `curl`) |
-| **B3** | da fare | `Dockerfile` dell'API e servizio `api` nel compose con `healthcheck` |
-| **B4** | da fare | Integrazione frontend: `provideHttpClient()`, `TopologiaApiService`, pulsanti server, `proxy.conf.json` |
+| **B1** | fatto | `docker-compose.yml` con il servizio `db` + `db/init.sql` |
+| **B2** | fatto | API Express con pool MySQL e i 6 endpoint (verifica con `curl`) |
+| **B3** | fatto | `Dockerfile` dell'API e servizio `api` nel compose con `healthcheck` |
+| **B4** | fatto | Integrazione frontend: `provideHttpClient()`, `TopologiaApiService`, pulsanti server, `proxy.conf.json` |
 | **B5** | da fare | `README.md` del backend, screenshot del salvataggio sul server, aggiornamento della documentazione |
 
 ## 7. Trappole note e contromisure
@@ -259,6 +324,8 @@ Endpoint: `GET /api/topologie`, `GET /api/topologie/:id`, `POST /api/topologie`,
 | Budget CSS dei componenti (4 kB) | palette e stili comuni in `styles.css`, nel componente solo il layout |
 | MySQL pronto dopo l'API | `healthcheck` + `depends_on: condition: service_healthy` |
 | Id dei dispositivi diversi fra client e database | il server rimappa gli id e **restituisce la topologia salvata**, che il frontend usa per rinfrescare lo stato |
+| Il `proxyConfig` non vale per un `ng serve` già avviato | riavviare il dev server dopo aver toccato `angular.json` o `proxy.conf.json` (e svuotare `.angular/cache`) |
+| Errore generico "Qualcosa non ha funzionato" quando il server è spento | `status == 0` di `HttpErrorResponse` = server irraggiungibile: messaggio dedicato che dice di avviare `docker compose up -d` |
 
 ## 8. Comandi
 
@@ -270,7 +337,15 @@ npx ng serve                        # prova manuale su http://localhost:4200
 npx ng g c components/<nome>        # nuovo componente
 
 cd ~/Desktop/Signals/esame_backend
-docker compose up --build -d        # database + API
-docker compose logs -f api
-docker compose exec db mysql -uroot -p -e "use topologie; select * from dispositivi;"
+docker compose up --build -d        # database + API, entrambi in container
+docker compose ps                   # stato e "healthy" dei due servizi
+docker compose logs -f api          # log dell'API
+docker compose down                 # ferma tutto (i dati restano nel volume)
+docker compose down -v              # ferma tutto e cancella anche il database
+docker compose exec db mysql -uesame -pesame topologie -e "select * from dispositivi;"
+
+# API dal computer invece che dal container (utile per modificarla e riavviarla subito):
+# il database resta nel container, l'API usa DB_HOST=127.0.0.1 e DB_PORT=3307 del .env
+docker compose up -d db
+npm start
 ```

@@ -21,5 +21,32 @@ services:
       retries: 20
       start_period: 30s
 
+  api:
+    build: .
+    container_name: esame_api
+    restart: unless-stopped
+    depends_on:
+      # L'API parte solo quando MySQL risponde davvero, non solo quando il
+      # container e' avviato: senza questo al primo avvio fallirebbe la connessione.
+      db:
+        condition: service_healthy
+    environment:
+      # Dentro la rete di compose il database si chiama "db" e ascolta sulla
+      # porta standard, non sulla 3307 che serve a chi sta fuori.
+      DB_HOST: db
+      DB_PORT: 3306
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      PORT: 3000
+    ports:
+      - "${API_PORT}:3000"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
 volumes:
   dati_db:

@@ -254,7 +254,7 @@ export class TopologiaService {
         alert("Topologia cancellata.")
     }
 
-    private creaTopologia(): Topologia {
+    creaTopologia(): Topologia {
         return {
             nome: this.nome(),
             versione: VERSIONE_TOPOLOGIA,
@@ -272,7 +272,7 @@ export class TopologiaService {
         }
     }
 
-    private applicaTopologia(varTopologia: Topologia): void {
+    applicaTopologia(varTopologia: Topologia): void {
         this.nome.set(varTopologia.nome)
         this.dispositivi.set(varTopologia.dispositivi)
         this.connessioni.set(varTopologia.connessioni)
