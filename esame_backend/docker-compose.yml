@@ -1,3 +1,10 @@
+# Questo file avvia TUTTA l'infrastruttura del progetto, non solo il backend:
+# il database, l'API e il frontend. Un solo "docker compose up" accende tutto,
+# nell'ordine giusto, perche' ogni servizio aspetta che il precedente sia pronto.
+#
+# Il frontend si costruisce dalla cartella accanto (../esame_angular), quindi
+# va avviato da qui:  cd esame_backend && docker compose up -d
+
 services:
 
   db:
@@ -43,6 +50,24 @@ services:
       - "${API_PORT}:3000"
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  frontend:
+    # L'applicazione Angular compilata e servita da nginx (vedi esame_angular/Dockerfile).
+    build: ../esame_angular
+    container_name: esame_frontend
+    restart: unless-stopped
+    depends_on:
+      # Parte solo con l'API gia' funzionante: nginx le gira le chiamate /api.
+      api:
+        condition: service_healthy
+    ports:
+      - "${FRONTEND_PORT}:80"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/"]
       interval: 10s
       timeout: 5s
       retries: 5

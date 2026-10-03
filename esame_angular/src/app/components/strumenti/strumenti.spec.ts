@@ -116,11 +116,47 @@ describe('Strumenti', () => {
     });
 
     await new Promise(risolvi => setTimeout(risolvi));
-    await rispondiElenco([]);
+    await rispondiElenco([{ id: 4, nome: "Rete laboratorio", creata_il: "2026-09-25T15:37:27.000Z" }]);
     await salvataggio;
 
     expect(component.service.dispositivi().map(d => d.id)).toEqual([77]);
-    expect(component.elencoServer().length).toBe(0);
+    expect(component.elencoServer().length).toBe(1);
+    expect(component.idScelto()).toBe(4);
+  });
+
+  it('should move the choice on the topology it has just saved', async () => {
+    vi.spyOn(window, "alert").mockImplementation(() => {});
+
+    await rispondiElenco([
+      { id: 1, nome: "Rete laboratorio", creata_il: "2026-09-25T15:37:27.000Z" },
+      { id: 4, nome: "Rete aula 3", creata_il: "2026-09-25T16:02:00.000Z" }
+    ]);
+
+    expect(component.idScelto()).toBe(4);
+
+    component.service.aggiungiDispositivo("PC");
+
+    const salvataggio = component.salvaSulServer();
+
+    http.expectOne('/api/topologie').flush({
+      id: 5,
+      nome: "Rete laboratorio",
+      creata_il: "2026-09-25T17:00:00.000Z",
+      dispositivi: [
+        { id: 77, tipo: "PC", nome: "PC-01", x: 100, y: 100, ip: "192.168.1.101", hostname: "pc-01", stato: "Offline" }
+      ],
+      connessioni: []
+    });
+
+    await new Promise(risolvi => setTimeout(risolvi));
+    await rispondiElenco([
+      { id: 1, nome: "Rete laboratorio", creata_il: "2026-09-25T15:37:27.000Z" },
+      { id: 4, nome: "Rete aula 3", creata_il: "2026-09-25T16:02:00.000Z" },
+      { id: 5, nome: "Rete laboratorio", creata_il: "2026-09-25T17:00:00.000Z" }
+    ]);
+    await salvataggio;
+
+    expect(component.idScelto()).toBe(5);
   });
 
   it('should delete a topology from the server', async () => {

@@ -4,7 +4,7 @@ import { firstValueFrom } from 'rxjs';
 import { VERSIONE_TOPOLOGIA } from '../costanti';
 import { Connessione } from '../types/connessione';
 import { Dispositivo } from '../types/dispositivo';
-import { Topologia } from '../types/topologia';
+import { Topologia, TopologiaConId } from '../types/topologia';
 import { TopologiaSalvata } from '../types/topologia-salvata';
 
 type RispostaApi = {
@@ -32,14 +32,14 @@ export class TopologiaApiService {
         return this.creaTopologia(risposta)
     }
 
-    async salva(varTopologia: Topologia): Promise<Topologia> {
+    async salva(varTopologia: Topologia): Promise<TopologiaConId> {
         const risposta = await firstValueFrom(this.http.post<RispostaApi>(this.indirizzo, {
             nome: varTopologia.nome,
             dispositivi: varTopologia.dispositivi,
             connessioni: varTopologia.connessioni
         }))
 
-        return this.creaTopologia(risposta)
+        return { ...this.creaTopologia(risposta), id: risposta.id }
     }
 
     async elimina(varId: number): Promise<void> {

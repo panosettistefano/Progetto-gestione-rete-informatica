@@ -90,6 +90,14 @@ src/
     components/dettaglio/           sidebar di dettaglio (click destro) con eliminazione
     app.ts|html|css                 navbar + i tre componenti
   proxy.conf.json                   in sviluppo "/api" viene girato su http://localhost:3000
+  Dockerfile                        due fasi: compila con Node, poi copia in nginx
+  nginx.conf                        serve i file compilati e gira "/api" al servizio api
+  .dockerignore                     fuori dal contesto di build: node_modules, dist, .angular
+  scripts/screenshot.mjs            genera gli screenshot di docs/ con Playwright
+  docs/*.png                        screenshot della documentazione
+  README.md                         documentazione di consegna (le 6 sezioni richieste)
+  GUIDA_COMANDI.md                  tutti i comandi, le varianti di avvio, la diagnostica
+  GUIDA_LOGICA.md                   come funziona dentro: stato, flusso dei dati, backend
 ```
 
 ### Stato del `TopologiaService`
@@ -211,13 +219,13 @@ prova manuale con `npx ng serve`, poi un commit git con messaggio in italiano.
 | **M5** | fatto | Dettaglio con click destro: sidebar con nome, tipo, IP, hostname, stato | `dettaglio.*`, `canvas.*`, `topologia-service.ts` |
 | **M6** | fatto | Eliminazione dispositivo (con le sue connessioni) e singola connessione | `dettaglio.*`, `topologia-service.ts` |
 | **M7** | fatto | Persistenza: salva / carica / cancella topologia su Local Storage | `services/persistenza-service.ts`, `strumenti.*`, `topologia-service.ts` |
-| **M8** | da fare | Rifiniture, test del service, screenshot in `docs/`, `README.md` tecnico | spec, `README.md`, `docs/` |
+| **M8** | fatto | Rifiniture e consegna: i 5 screenshot in `docs/` generati dallo script, sezione 6 del README, ritocco del testo "modalità Connect" → "modalità Collegamento" e correzione della scelta dopo il salvataggio sul server | `docs/`, `README.md`, `scripts/screenshot.mjs`, `types/topologia.ts`, `services/topologia-api-service.ts`, `components/strumenti/*` |
 
 ## 6. Fase 2 — Backend REST + MySQL in Docker (`../esame_backend`)
 
 ```text
 esame_backend/
-  docker-compose.yml        servizi: db (mysql:8.4) + api (build dal Dockerfile)
+  docker-compose.yml        i tre servizi: db (mysql:8.4), api e frontend (nginx)
   Dockerfile                node:24-alpine, npm ci --omit=dev
   .dockerignore / .env      configurazione del database
   package.json              express, mysql2, cors, dotenv
@@ -262,10 +270,10 @@ stato — è la contromisura alla trappola "id diversi fra client e database".
 ```ts
 @Service()
 export class TopologiaApiService {
-    elenco(): Promise<TopologiaSalvata[]>   // GET    /api/topologie
-    apri(varId: number): Promise<Topologia> // GET    /api/topologie/:id
-    salva(varTopologia): Promise<Topologia> // POST   /api/topologie  (la risposta rimappa gli id)
-    elimina(varId: number): Promise<void>   // DELETE /api/topologie/:id
+    elenco(): Promise<TopologiaSalvata[]>       // GET    /api/topologie
+    apri(varId: number): Promise<Topologia>     // GET    /api/topologie/:id
+    salva(varTopologia): Promise<TopologiaConId>// POST   /api/topologie (rimappa gli id, torna l'id nuovo)
+    elimina(varId: number): Promise<void>       // DELETE /api/topologie/:id
 }
 ```
 
@@ -278,8 +286,9 @@ export class TopologiaApiService {
   `inCorso` (disabilita i pulsanti), cattura gli errori e li traduce in un messaggio leggibile
   (`status == 0` → "server non raggiungibile, avvia `docker compose up -d`").
 - Dopo un salvataggio il frontend **riapplica la topologia tornata dal server**
-  (`service.applicaTopologia(salvata)`): il canvas resta identico a schermo, ma gli id diventano quelli
-  del database, quindi salvare due volte di seguito non duplica nulla.
+  (`service.applicaTopologia(salvata)`) e sposta la scelta su di essa (`idScelto.set(salvata.id)`):
+  il canvas resta identico a schermo, ma gli id diventano quelli del database, quindi salvare due
+  volte di seguito non duplica nulla, e la tendina punta a quello che si è appena creato.
 
 Comandi utili per provare a mano (database e API accesi):
 
@@ -301,7 +310,8 @@ transazione, quindi senza righe a metà).
 | **B2** | fatto | API Express con pool MySQL e i 6 endpoint (verifica con `curl`) |
 | **B3** | fatto | `Dockerfile` dell'API e servizio `api` nel compose con `healthcheck` |
 | **B4** | fatto | Integrazione frontend: `provideHttpClient()`, `TopologiaApiService`, pulsanti server, `proxy.conf.json` |
-| **B5** | da fare | `README.md` del backend, screenshot del salvataggio sul server, aggiornamento della documentazione |
+| **B5** | fatto | `README.md` del backend, screenshot `docs/salvataggio-server.png`, README del frontend con Soluzione A e B, verifica del volume |
+| **B6** | fatto | Il compose avvia **tutta** l'infrastruttura: `Dockerfile` multi-stage del frontend + `nginx.conf` (proxy `/api` verso il servizio `api`) + servizio `frontend` nel compose. Un solo `docker compose up` accende db + api + frontend, in fila con gli healthcheck |
 
 ## 7. Trappole note e contromisure
 
@@ -326,6 +336,7 @@ transazione, quindi senza righe a metà).
 | Id dei dispositivi diversi fra client e database | il server rimappa gli id e **restituisce la topologia salvata**, che il frontend usa per rinfrescare lo stato |
 | Il `proxyConfig` non vale per un `ng serve` già avviato | riavviare il dev server dopo aver toccato `angular.json` o `proxy.conf.json` (e svuotare `.angular/cache`) |
 | Errore generico "Qualcosa non ha funzionato" quando il server è spento | `status == 0` di `HttpErrorResponse` = server irraggiungibile: messaggio dedicato che dice di avviare `docker compose up -d` |
+| Dopo "Salva sul server" la tendina restava sulla topologia precedente: premendo poi "Elimina dal server" si cancellava un'altra topologia | `salva()` restituisce anche l'id appena assegnato (`TopologiaConId`) e la toolbar ci sposta sopra la scelta |
 
 ## 8. Comandi
 
@@ -337,8 +348,9 @@ npx ng serve                        # prova manuale su http://localhost:4200
 npx ng g c components/<nome>        # nuovo componente
 
 cd ~/Desktop/Signals/esame_backend
-docker compose up --build -d        # database + API, entrambi in container
-docker compose ps                   # stato e "healthy" dei due servizi
+docker compose up --build -d        # TUTTA l'infrastruttura: db + api + frontend
+docker compose ps                   # stato e "healthy" dei tre servizi
+docker compose up -d --build frontend  # solo il frontend, dopo una modifica al codice
 docker compose logs -f api          # log dell'API
 docker compose down                 # ferma tutto (i dati restano nel volume)
 docker compose down -v              # ferma tutto e cancella anche il database

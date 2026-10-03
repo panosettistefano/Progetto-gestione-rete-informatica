@@ -7,3 +7,5 @@ export type Topologia = {
     dispositivi: Dispositivo[],
     connessioni: Connessione[]
 }
+
+export type TopologiaConId = Topologia & { id: number }

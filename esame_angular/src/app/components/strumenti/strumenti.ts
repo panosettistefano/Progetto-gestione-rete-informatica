@@ -30,6 +30,7 @@ export class Strumenti implements OnInit {
       const salvata = await this.api.salva(this.service.creaTopologia());
 
       this.service.applicaTopologia(salvata);
+      this.idScelto.set(salvata.id);
       await this.aggiornaElenco();
 
       alert("Topologia salvata sul server.");

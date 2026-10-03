@@ -1,0 +1,12 @@
+# Roba che non serve dentro l'immagine: cosi' il contesto di build resta piccolo
+# e la compilazione non perde tempo a copiare centinaia di megabyte.
+
+node_modules
+dist
+.angular
+.git
+.vscode
+docs
+scripts
+Dockerfile
+.dockerignore

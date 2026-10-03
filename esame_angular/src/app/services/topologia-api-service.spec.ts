@@ -95,6 +95,7 @@ describe('TopologiaApiService', () => {
 
     const salvata = await promessa;
 
+    expect(salvata.id).toBe(4);
     expect(salvata.dispositivi.map(d => d.id)).toEqual([10, 11]);
   });
 
