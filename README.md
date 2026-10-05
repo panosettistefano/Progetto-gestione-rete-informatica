@@ -252,7 +252,7 @@ partono dal centro esatto delle icone. Il contatore in alto a destra conferma
 `Dispositivi: 4 - Connessioni: 3`. Trascinando un dispositivo le sue linee lo seguono,
 perché gli estremi arrivano da un `computed` che dipende dai signals.
 
-![Dispositivi collegati](esame_angular/ocs/connessioni.png)
+![Dispositivi collegati](esame_angular/docs/connessioni.png)
 
 ### Dettaglio del dispositivo
 
@@ -281,4 +281,4 @@ presenti sul database. Da qui si possono riaprire con **Apri dal server** o elim
 **Elimina dal server**. Gli id dei dispositivi li assegna il database: il server rimappa i
 collegamenti e restituisce la topologia salvata, così il canvas resta identico.
 
-![Salvataggio sul server](docs/salvataggio-server.png)
+![Salvataggio sul server](esame_angular/docs/salvataggio-server.png)
