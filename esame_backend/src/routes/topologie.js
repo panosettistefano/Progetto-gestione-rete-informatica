@@ -169,6 +169,11 @@ function validaCorpo(varCorpo) {
         return "Serve il nome della topologia."
     }
 
+    // la colonna e' VARCHAR(100): un nome piu' lungo farebbe fallire la query
+    if (varCorpo.nome.length > 100) {
+        return "Il nome della topologia non può superare i 100 caratteri."
+    }
+
     if (!Array.isArray(varCorpo.dispositivi) || !Array.isArray(varCorpo.connessioni)) {
         return "dispositivi e connessioni devono essere due elenchi."
     }

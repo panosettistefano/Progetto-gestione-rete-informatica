@@ -1,10 +1,11 @@
 @if (service.dispositivoDettaglio(); as dispositivo) {
-<aside class="pannello sidebar-dettaglio p-3">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="mb-0">{{ dispositivo.nome }}</h5>
+<aside class="pannello sidebar-dettaglio">
+    <div class="riga riga--fra">
+        <h2 class="pannello-titolo cresce">{{ dispositivo.nome }}</h2>
+
         <button
             type="button"
-            class="btn btn-sm btn-outline-secondary"
+            class="pulsante pulsante--piccolo"
             aria-label="Chiudi il dettaglio"
             (click)="service.chiudiDettaglio()"
         >
@@ -12,52 +13,56 @@
         </button>
     </div>
 
-    <dl class="row mb-3">
-        <dt class="col-4">Tipo</dt>
-        <dd class="col-8">{{ dispositivo.tipo }}</dd>
+    <dl class="griglia-campi">
+        <dt>Tipo</dt>
+        <dd>{{ dispositivo.tipo }}</dd>
 
-        <dt class="col-4">IP</dt>
-        <dd class="col-8">{{ dispositivo.ip }}</dd>
+        <dt>IP</dt>
+        <dd>{{ dispositivo.ip }}</dd>
 
-        <dt class="col-4">Hostname</dt>
-        <dd class="col-8">{{ dispositivo.hostname }}</dd>
+        <dt>Hostname</dt>
+        <dd>{{ dispositivo.hostname }}</dd>
 
-        <dt class="col-4">Stato</dt>
-        <dd class="col-8">
-            <span [class]="'badge ' + classeStato(dispositivo.stato)">{{ dispositivo.stato }}</span>
+        <dt>Stato</dt>
+        <dd>
+            <span [class]="'pastiglia ' + classeStato(dispositivo.stato)">{{ dispositivo.stato }}</span>
         </dd>
     </dl>
 
+    @if (dispositivo.tipo == 'Router') {
     @if (dispositivo.stato == 'Online') {
-    <button type="button" class="btn btn-outline-danger w-100" (click)="service.disattivaStato(dispositivo.id)">
-        <i class="bi bi-power me-1"></i>Disattiva stato
+    <button type="button" class="pulsante pulsante--pericolo pulsante--blocco" (click)="service.disattivaStato(dispositivo.id)">
+        <i class="bi bi-power"></i>Disattiva stato
     </button>
-    } @else {
-    <button type="button" class="btn btn-outline-success w-100" (click)="service.attivaStato(dispositivo.id)">
-        <i class="bi bi-power me-1"></i>Attiva stato
-    </button>
-    }
 
-    @if (dispositivo.tipo == 'Router' && dispositivo.stato != 'Online') {
-    <p class="text-muted small mt-2 mb-0">
-        Attivando il router arriva internet: si accendono anche gli switch e i PC collegati.
+    <p class="aiuto">Spegnendo il router si spegne tutta la rete: anche gli switch e i PC collegati.</p>
+    } @else {
+    <button type="button" class="pulsante pulsante--blocco" (click)="service.attivaStato(dispositivo.id)">
+        <i class="bi bi-power"></i>Attiva stato
+    </button>
+
+    <p class="aiuto">Attivando il router arriva internet: si accendono anche gli switch e i PC collegati.</p>
+    }
+    } @else {
+    <p class="aiuto">
+        Questo dispositivo non ha un interruttore: si accende da solo quando è collegato a un router acceso.
     </p>
     }
 
-    <hr>
+    <hr />
 
-    <h6 class="mb-2">Collegamenti</h6>
+    <h3 class="sezione">Collegamenti</h3>
 
     @if (service.connessioniDettaglio().length == 0) {
-    <p class="text-muted small mb-0">Nessun collegamento: creane uno con la modalità Collegamento.</p>
+    <p class="aiuto">Nessun collegamento: creane uno con la modalità Collegamento.</p>
     } @else {
-    <ul class="list-group list-group-flush">
+    <ul class="elenco">
         @for (collegamento of service.connessioniDettaglio(); track collegamento.id) {
-        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-            <span><i class="bi bi-link-45deg me-1"></i>{{ collegamento.nome }}</span>
+        <li>
+            <span><i class="bi bi-link-45deg"></i>{{ collegamento.nome }}</span>
             <button
                 type="button"
-                class="btn btn-sm btn-outline-danger"
+                class="pulsante pulsante--pericolo pulsante--piccolo"
                 aria-label="Elimina il collegamento con {{ collegamento.nome }}"
                 (click)="service.eliminaConnessione(collegamento.id)"
             >
@@ -68,10 +73,10 @@
     </ul>
     }
 
-    <hr>
+    <hr />
 
-    <button type="button" class="btn btn-danger w-100" (click)="service.eliminaDispositivo(dispositivo.id)">
-        <i class="bi bi-trash me-1"></i>Elimina dispositivo
+    <button type="button" class="pulsante pulsante--elimina pulsante--blocco" (click)="service.eliminaDispositivo(dispositivo.id)">
+        <i class="bi bi-trash"></i>Elimina dispositivo
     </button>
 </aside>
 }

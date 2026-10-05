@@ -1,0 +1,18 @@
+:host {
+    display: block;
+    margin-bottom: 1.25rem;
+}
+
+/* i separatori fra un gruppo di comandi e il successivo */
+.separatore {
+    margin: 0.9rem 0;
+}
+
+/* i due pulsanti della modalità, attaccati come un interruttore */
+.gruppo {
+    display: inline-flex;
+}
+
+.gruppo .pulsante + .pulsante {
+    margin-left: -1px;
+}

@@ -58,6 +58,27 @@ describe('Strumenti', () => {
     expect(localStorage.getItem(CHIAVE_TOPOLOGIA)).not.toBeNull();
   });
 
+  it('should let the user name the topology', async () => {
+    const campo = fixture.nativeElement.querySelector('input') as HTMLInputElement;
+
+    expect(campo.value).toBe("Rete laboratorio");
+
+    campo.value = "Rete aula 3";
+    campo.dispatchEvent(new Event("input"));
+    await fixture.whenStable();
+
+    expect(component.service.nome()).toBe("Rete aula 3");
+  });
+
+  it('should put the name of the topology in the field', async () => {
+    component.service.nome.set("Rete aula 3");
+    await fixture.whenStable();
+
+    const campo = fixture.nativeElement.querySelector('input') as HTMLInputElement;
+
+    expect(campo.value).toBe("Rete aula 3");
+  });
+
   it('should show the three buttons of the server', () => {
     expect(pulsante("Salva sul server")).toBeTruthy();
     expect(pulsante("Apri dal server")).toBeTruthy();

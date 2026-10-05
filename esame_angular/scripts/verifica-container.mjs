@@ -64,7 +64,22 @@ controllo("L'elenco sul server e' cresciuto di uno",
 
 await pagina.screenshot({ path: '/tmp/pw/container-8080.png', fullPage: true });
 
-// pulizia: si cancella la topologia appena creata, cosi' il database resta pulito
+// pulizia: si cancella la topologia appena creata, cosi' il database resta pulito.
+// Prima la si seleziona esplicitamente nella tendina: cosi' non si dipende da
+// quale voce l'applicazione ha scelto da sola, che e' esattamente il modo in cui
+// questo script ha cancellato per sbaglio una topologia che non era la sua.
+const idNuovo = await pagina.evaluate(() => {
+    const scelte = Array.from(document.querySelectorAll('app-strumenti select option'));
+    const ultima = scelte[scelte.length - 1];
+
+    return ultima ? ultima.value : null;
+});
+
+if (idNuovo) {
+    await pagina.locator('app-strumenti select').selectOption(idNuovo);
+    await pagina.waitForTimeout(300);
+}
+
 messaggi.length = 0;
 await pagina.locator('app-strumenti button', { hasText: "Elimina dal server" }).click();
 await pagina.waitForTimeout(1500);

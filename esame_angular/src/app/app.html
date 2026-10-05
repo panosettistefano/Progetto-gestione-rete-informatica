@@ -1,13 +1,11 @@
-<nav class="navbar navbar-dark bg-dark shadow-sm">
-    <div class="container-fluid">
-        <span class="navbar-brand mb-0 h1">
-            <i class="bi bi-diagram-3 me-2"></i>Gestione rete informatica
-        </span>
-    </div>
-</nav>
+<header class="barra-superiore">
+    <i class="bi bi-diagram-3"></i>
+    <span class="titolo">Gestione rete informatica</span>
+    <span class="cursore"></span>
+</header>
 
-<div class="container-fluid my-4" [class.con-dettaglio]="service.dispositivoDettaglio() != null">
+<main class="contenuto" [class.con-dettaglio]="service.dispositivoDettaglio() != null">
     <app-strumenti />
     <app-canvas />
     <app-dettaglio />
-</div>
+</main>

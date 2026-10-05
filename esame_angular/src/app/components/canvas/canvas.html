@@ -1,16 +1,16 @@
-<div class="pannello p-3">
-    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-        <h5 class="mb-0">Canvas</h5>
+<div class="pannello">
+    <div class="intestazione">
+        <h2 class="pannello-titolo">Canvas</h2>
 
-        <div class="d-flex flex-wrap align-items-center justify-content-end gap-3">
+        <div class="riga">
             @if (service.modalita() == 'edit') {
-            <span class="badge text-bg-secondary">Modalità modifica</span>
+            <span class="pastiglia">Modalità modifica</span>
             } @else {
-            <span class="badge text-bg-warning">Clicca il primo dispositivo, poi il secondo da collegare</span>
+            <span class="pastiglia pastiglia--accento">Clicca il primo dispositivo, poi il secondo da collegare</span>
             }
 
-            <span class="text-muted small">
-                Dispositivi: {{ service.dispositivi().length }} - Connessioni: {{ service.connessioni().length }}
+            <span class="piccolo tenue">
+                Dispositivi: {{ service.dispositivi().length }} · Connessioni: {{ service.connessioni().length }}
             </span>
         </div>
     </div>

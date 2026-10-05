@@ -1,9 +1,489 @@
+/* ==========================================================================
+   Tema "terminale" — tutte le regole condivise dell'applicazione.
+   I CSS dei componenti si occupano solo del loro layout e usano queste variabili.
+   ========================================================================== */
+
+:root {
+    /* sfondi */
+    --fondo: #060a09;
+    --fondo-pannello: #0b1211;
+    --fondo-alto: #111c1a;
+
+    /* bordi */
+    --bordo: #1f3d37;
+    --bordo-acceso: #31635a;
+
+    /* testo */
+    --testo: #cfe8e1;
+    --testo-tenue: #86aaa1;
+
+    /* accento */
+    --accento: #3ce0b4;
+    --accento-tenue: rgba(60, 224, 180, 0.14);
+
+    /* pericolo */
+    --pericolo: #ff6b6b;
+    --pericolo-tenue: rgba(255, 107, 107, 0.14);
+
+    /* i tre colori dei dispositivi: gli esagoni stanno qui e solo qui */
+    --colore-pc: #3ce0b4;
+    --colore-switch: #7ee081;
+    --colore-router: #ffb454;
+
+    --mono: ui-monospace, SFMono-Regular, 'Cascadia Mono', 'Source Code Pro', Menlo, Consolas,
+        'DejaVu Sans Mono', monospace;
+}
+
+/* --- reset: sostituisce quello di Bootstrap, serve a farlo funzionare --- */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    /* senza, la tendina apre un menu bianco con opzioni illeggibili */
+    color-scheme: dark;
+    /* lo sfondo sta anche qui e non solo su body: cosi' l'area sotto la pagina
+       e' scura fin dal primo disegno e non compare un lampo bianco */
+    background-color: var(--fondo);
+}
+
 body {
-    background-color: #f2f4f7;
+    margin: 0;
+    background-color: var(--fondo);
+    color: var(--testo);
+    font-family: var(--mono);
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+/* i controlli non ereditano il font da soli: senza questa riga i pulsanti
+   tornerebbero al font di sistema, fuori tema */
+button,
+input,
+select,
+textarea {
+    font: inherit;
+    color: inherit;
+}
+
+button:not(:disabled) {
+    cursor: pointer;
+}
+
+button:disabled {
+    cursor: not-allowed;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+dl,
+dd,
+figure {
+    margin: 0;
+}
+
+ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+code {
+    font-family: inherit;
+    font-size: 0.95em;
+    color: var(--accento);
+}
+
+hr {
+    height: 0;
+    margin: 0;
+    border: 0;
+    border-top: 1px solid var(--bordo);
+}
+
+::selection {
+    background-color: var(--accento);
+    color: var(--fondo);
+}
+
+/* le icone sono testo: la spaziatura fra le lettere le disallineerebbe */
+.bi {
+    letter-spacing: normal;
+    line-height: 1;
+}
+
+/* --- barra superiore --- */
+
+.barra-superiore {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.7rem;
+    padding: 0.75rem 1.25rem;
+    background-color: var(--fondo-pannello);
+    border-bottom: 1px solid var(--accento);
+}
+
+.titolo {
+    font-size: 1rem;
+    font-weight: normal;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accento);
+}
+
+.cursore {
+    width: 0.55rem;
+    height: 1.05rem;
+    background-color: var(--accento);
+    animation: lampeggia 1.1s steps(1) infinite;
+}
+
+@keyframes lampeggia {
+    50% {
+        opacity: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cursore {
+        animation: none;
+    }
+}
+
+/* --- contenitore e pannelli --- */
+
+.contenuto {
+    padding: 1.25rem;
 }
 
 .pannello {
-    background-color: #ffffff;
-    border: 1px solid #dee2e6;
-    border-radius: 0.5rem;
+    padding: 1rem;
+    background-color: var(--fondo-pannello);
+    border: 1px solid var(--bordo);
+}
+
+/* intestazione di un pannello: ─── CANVAS ───────────── */
+.pannello-titolo {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    font-size: 0.78rem;
+    font-weight: normal;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accento);
+}
+
+.pannello-titolo::after {
+    content: '';
+    flex: 1;
+    border-top: 1px solid var(--bordo);
+}
+
+/* etichetta di sezione: ─── COLLEGAMENTI ─── */
+.sezione {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    font-size: 0.72rem;
+    font-weight: normal;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--testo-tenue);
+}
+
+.sezione::before,
+.sezione::after {
+    content: '';
+    flex: 1;
+    border-top: 1px solid var(--bordo);
+}
+
+/* etichetta con il quadratino: ■ MODALITÀ */
+.etichetta {
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--testo-tenue);
+    white-space: nowrap;
+}
+
+.etichetta::before {
+    content: '■';
+    margin-right: 0.5rem;
+    font-size: 0.5rem;
+    color: var(--accento);
+    vertical-align: middle;
+}
+
+/* --- disposizione --- */
+
+.riga {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.7rem;
+}
+
+.riga--fra {
+    justify-content: space-between;
+}
+
+.riga--destra {
+    justify-content: flex-end;
+}
+
+.cresce {
+    flex: 1;
+}
+
+/* --- pulsanti --- */
+
+.pulsante {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.8rem;
+    background-color: transparent;
+    border: 1px solid var(--bordo-acceso);
+    color: var(--accento);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.pulsante:hover:not(:disabled) {
+    background-color: var(--accento-tenue);
+    border-color: var(--accento);
+}
+
+.pulsante:focus-visible {
+    outline: 2px solid var(--accento);
+    outline-offset: 2px;
+}
+
+.pulsante:disabled {
+    opacity: 0.3;
+}
+
+.pulsante .bi {
+    font-size: 1rem;
+}
+
+/* il pulsante acceso si distingue anche per il marcatore, non solo per il colore */
+.pulsante--attivo {
+    background-color: var(--accento);
+    border-color: var(--accento);
+    color: var(--fondo);
+}
+
+.pulsante--attivo::before {
+    content: '▸';
+}
+
+.pulsante--pericolo {
+    color: var(--pericolo);
+    border-color: rgba(255, 107, 107, 0.45);
+}
+
+.pulsante--pericolo:hover:not(:disabled) {
+    background-color: var(--pericolo-tenue);
+    border-color: var(--pericolo);
+}
+
+.pulsante--elimina {
+    background-color: var(--pericolo);
+    border-color: var(--pericolo);
+    color: var(--fondo);
+}
+
+.pulsante--elimina:hover:not(:disabled) {
+    background-color: #ff8b8b;
+    border-color: #ff8b8b;
+}
+
+.pulsante--piccolo {
+    padding: 0.25rem 0.45rem;
+    font-size: 0.68rem;
+}
+
+.pulsante--blocco {
+    width: 100%;
+    justify-content: center;
+}
+
+/* i pulsanti che aggiungono un dispositivo prendono il colore del tipo */
+.pulsante--pc,
+.pulsante--switch,
+.pulsante--router {
+    color: var(--colore);
+    border-color: var(--colore);
+}
+
+.pulsante--pc:hover:not(:disabled),
+.pulsante--switch:hover:not(:disabled),
+.pulsante--router:hover:not(:disabled) {
+    background-color: var(--colore-tenue);
+}
+
+.pulsante--pc {
+    --colore: var(--colore-pc);
+    --colore-tenue: rgba(60, 224, 180, 0.14);
+}
+
+.pulsante--switch {
+    --colore: var(--colore-switch);
+    --colore-tenue: rgba(126, 224, 129, 0.14);
+}
+
+.pulsante--router {
+    --colore: var(--colore-router);
+    --colore-tenue: rgba(255, 180, 84, 0.14);
+}
+
+/* --- tendina --- */
+
+.campo {
+    padding: 0.45rem 1.9rem 0.45rem 0.6rem;
+    background-color: var(--fondo-alto);
+    border: 1px solid var(--bordo-acceso);
+    color: var(--testo);
+    font-size: 0.78rem;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%233ce0b4' stroke-width='1.6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.6rem center;
+    background-size: 0.6rem;
+}
+
+.campo:hover:not(:disabled) {
+    border-color: var(--accento);
+}
+
+.campo:focus-visible {
+    outline: 2px solid var(--accento);
+    outline-offset: 2px;
+}
+
+.campo:disabled {
+    opacity: 0.4;
+}
+
+.campo option {
+    background-color: var(--fondo-alto);
+    color: var(--testo);
+}
+
+/* il campo di testo (il nome della topologia): come la tendina ma senza la freccia */
+.campo--testo {
+    width: 16rem;
+    max-width: 100%;
+    padding-right: 0.6rem;
+    background-image: none;
+}
+
+.campo--testo::placeholder {
+    color: var(--testo-tenue);
+}
+
+/* --- pastiglie di stato --- */
+
+.pastiglia {
+    display: inline-block;
+    padding: 0.1rem 0.45rem;
+    border: 1px solid currentColor;
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.pastiglia--accento {
+    color: var(--accento);
+}
+
+.pastiglia--online {
+    color: var(--colore-switch);
+}
+
+.pastiglia--offline {
+    color: var(--pericolo);
+}
+
+.pastiglia--manutenzione {
+    color: var(--colore-router);
+}
+
+/* --- elenchi --- */
+
+.elenco > li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.45rem 0;
+    border-bottom: 1px dashed var(--bordo);
+}
+
+.elenco > li:last-child {
+    border-bottom: 0;
+}
+
+/* --- la dl del dettaglio: due colonne --- */
+
+.griglia-campi {
+    display: grid;
+    grid-template-columns: 7rem 1fr;
+    gap: 0.4rem 0.8rem;
+    font-size: 0.84rem;
+}
+
+.griglia-campi dt {
+    align-self: center;
+    color: var(--testo-tenue);
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.griglia-campi dd {
+    margin: 0;
+}
+
+/* --- ritocchi di testo --- */
+
+.tenue {
+    color: var(--testo-tenue);
+}
+
+.piccolo {
+    font-size: 0.84rem;
+}
+
+.forte {
+    font-weight: 600;
+}
+
+.testo-pericolo {
+    color: var(--pericolo);
+}
+
+/* il ">" davanti ai testi di aiuto, come nel riferimento */
+.aiuto {
+    color: var(--testo-tenue);
+    font-size: 0.84rem;
+}
+
+.aiuto::before {
+    content: '> ';
+    color: var(--accento);
 }

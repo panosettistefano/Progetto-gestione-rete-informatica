@@ -1,102 +1,94 @@
-<div class="pannello p-3 mb-3">
-    <div class="d-flex flex-wrap align-items-center gap-2">
-        <span class="fw-semibold me-2">Aggiungi dispositivo:</span>
+<div class="pannello">
+    <div class="riga">
+        <span class="etichetta">Aggiungi dispositivo</span>
 
-        <button class="btn btn-outline-primary" (click)="service.aggiungiDispositivo('PC')">
-            <i class="bi bi-pc-display me-1"></i>PC
+        <button type="button" class="pulsante pulsante--pc" (click)="service.aggiungiDispositivo('PC')">
+            <i class="bi bi-pc-display"></i>PC
         </button>
 
-        <button class="btn btn-outline-success" (click)="service.aggiungiDispositivo('Switch')">
-            <i class="bi bi-hdd-network me-1"></i>Switch
+        <button type="button" class="pulsante pulsante--switch" (click)="service.aggiungiDispositivo('Switch')">
+            <i class="bi bi-hdd-network"></i>Switch
         </button>
 
-        <button class="btn btn-outline-warning" (click)="service.aggiungiDispositivo('Router')">
-            <i class="bi bi-router me-1"></i>Router
+        <button type="button" class="pulsante pulsante--router" (click)="service.aggiungiDispositivo('Router')">
+            <i class="bi bi-router"></i>Router
         </button>
     </div>
 
-    <hr class="my-3" />
+    <hr class="separatore" />
 
-    <div class="d-flex flex-wrap align-items-center gap-2">
-        <span class="fw-semibold me-2">Modalità:</span>
+    <div class="riga">
+        <span class="etichetta">Modalità</span>
 
-        <div class="btn-group" role="group" aria-label="Modalità del canvas">
+        <div class="gruppo" role="group" aria-label="Modalità del canvas">
             <button
                 type="button"
-                class="btn btn-outline-secondary"
-                [class.active]="service.modalita() == 'edit'"
+                class="pulsante"
+                [class.pulsante--attivo]="service.modalita() == 'edit'"
                 [attr.aria-pressed]="service.modalita() == 'edit'"
                 (click)="service.cambiaModalita('edit')"
             >
-                <i class="bi bi-pencil-square me-1"></i>Modifica
+                <i class="bi bi-pencil-square"></i>Modifica
             </button>
 
             <button
                 type="button"
-                class="btn btn-outline-secondary"
-                [class.active]="service.modalita() == 'connect'"
+                class="pulsante"
+                [class.pulsante--attivo]="service.modalita() == 'connect'"
                 [attr.aria-pressed]="service.modalita() == 'connect'"
                 (click)="service.cambiaModalita('connect')"
             >
-                <i class="bi bi-link-45deg me-1"></i>Collegamento
+                <i class="bi bi-link-45deg"></i>Collegamento
             </button>
         </div>
 
         @if (service.selezionato() == null) {
-        <span class="text-muted small">In modalità modifica trascini i dispositivi, in collegamento ne unisci due con un click.</span>
+        <span class="aiuto">In modalità modifica trascini i dispositivi, in collegamento ne unisci due con un click.</span>
         } @else {
-        <span class="text-muted small">Sorgente selezionata: clicca un altro dispositivo per collegarlo.</span>
+        <span class="aiuto">Sorgente selezionata: clicca un altro dispositivo per collegarlo.</span>
         }
     </div>
 
-    <hr class="my-3" />
+    <hr class="separatore" />
 
-    <div class="d-flex flex-wrap align-items-center gap-2">
-        <span class="fw-semibold me-2">Topologia:</span>
+    <div class="riga">
+        <span class="etichetta">Topologia</span>
 
-        <button
-            type="button"
-            class="btn btn-outline-primary"
-            (click)="service.salvaTopologia()"
-        >
-            <i class="bi bi-floppy me-1"></i>Salva
+        <input
+            type="text"
+            class="campo campo--testo"
+            aria-label="Nome della topologia"
+            maxlength="100"
+            [value]="service.nome()"
+            (input)="cambiaNome($event)"
+        />
+
+        <button type="button" class="pulsante" (click)="service.salvaTopologia()">
+            <i class="bi bi-floppy"></i>Salva
         </button>
 
-        <button
-            type="button"
-            class="btn btn-outline-primary"
-            (click)="service.caricaTopologia()"
-        >
-            <i class="bi bi-folder2-open me-1"></i>Carica
+        <button type="button" class="pulsante" (click)="service.caricaTopologia()">
+            <i class="bi bi-folder2-open"></i>Carica
         </button>
 
-        <button
-            type="button"
-            class="btn btn-outline-danger"
-            (click)="service.cancellaTopologia()"
-        >
-            <i class="bi bi-trash me-1"></i>Cancella
+        <button type="button" class="pulsante pulsante--pericolo" (click)="service.cancellaTopologia()">
+            <i class="bi bi-trash"></i>Cancella
         </button>
 
-        <span class="text-muted small">Salva e carica usano il Local Storage del browser.</span>
+        <span class="aiuto">Salva e carica usano il Local Storage del browser.</span>
     </div>
 
-    <hr class="my-3" />
+    <hr class="separatore" />
 
-    <div class="d-flex flex-wrap align-items-center gap-2">
-        <span class="fw-semibold me-2">Server:</span>
+    <div class="riga">
+        <span class="etichetta">Server</span>
 
-        <button
-            type="button"
-            class="btn btn-outline-primary"
-            [disabled]="inCorso()"
-            (click)="salvaSulServer()"
-        >
-            <i class="bi bi-cloud-arrow-up me-1"></i>Salva sul server
+        <button type="button" class="pulsante" [disabled]="inCorso()" (click)="salvaSulServer()">
+            <i class="bi bi-cloud-arrow-up"></i>Salva sul server
         </button>
 
         <select
-            class="form-select form-select-sm w-auto"
+            class="campo"
             aria-label="Topologie salvate sul server"
             [disabled]="inCorso() || elencoServer().length == 0"
             (change)="scegli($event)"
@@ -114,28 +106,28 @@
 
         <button
             type="button"
-            class="btn btn-outline-primary"
+            class="pulsante"
             [disabled]="inCorso() || idScelto() == null"
             (click)="apriDalServer()"
         >
-            <i class="bi bi-cloud-arrow-down me-1"></i>Apri dal server
+            <i class="bi bi-cloud-arrow-down"></i>Apri dal server
         </button>
 
         <button
             type="button"
-            class="btn btn-outline-danger"
+            class="pulsante pulsante--pericolo"
             [disabled]="inCorso() || idScelto() == null"
             (click)="eliminaDalServer()"
         >
-            <i class="bi bi-trash me-1"></i>Elimina dal server
+            <i class="bi bi-trash"></i>Elimina dal server
         </button>
 
         @if (serverAttivo() == false) {
-        <span class="text-danger small">
+        <span class="testo-pericolo piccolo">
             Server non raggiungibile: avvia <code>docker compose up -d</code> in esame_backend.
         </span>
         } @else {
-        <span class="text-muted small">{{ elencoServer().length }} topologie salvate sul server.</span>
+        <span class="aiuto">{{ elencoServer().length }} topologie salvate sul server.</span>
         }
     </div>
 </div>

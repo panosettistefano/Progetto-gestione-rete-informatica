@@ -128,7 +128,7 @@ describe('Dettaglio', () => {
     service.apriDettaglio(1);
     await fixture.whenStable();
 
-    const voci = fixture.nativeElement.querySelectorAll('.sidebar-dettaglio .list-group-item');
+    const voci = fixture.nativeElement.querySelectorAll('.sidebar-dettaglio .elenco li');
 
     expect(voci.length).toBe(1);
     expect(voci[0].textContent).toContain("Switch-01");
@@ -139,7 +139,7 @@ describe('Dettaglio', () => {
     service.apriDettaglio(1);
     await fixture.whenStable();
 
-    expect(fixture.nativeElement.querySelectorAll('.list-group-item').length).toBe(0);
+    expect(fixture.nativeElement.querySelectorAll('.elenco li').length).toBe(0);
     expect(fixture.nativeElement.textContent).toContain("Nessun collegamento");
   });
 
@@ -149,7 +149,7 @@ describe('Dettaglio', () => {
     service.apriDettaglio(1);
     await fixture.whenStable();
 
-    const pulsante = fixture.nativeElement.querySelector('.list-group-item button') as HTMLButtonElement;
+    const pulsante = fixture.nativeElement.querySelector('.elenco li button') as HTMLButtonElement;
 
     pulsante.click();
     await fixture.whenStable();
@@ -165,7 +165,7 @@ describe('Dettaglio', () => {
     service.apriDettaglio(1);
     await fixture.whenStable();
 
-    const pulsante = fixture.nativeElement.querySelector('.sidebar-dettaglio .btn-danger') as HTMLButtonElement;
+    const pulsante = fixture.nativeElement.querySelector('.sidebar-dettaglio .pulsante--elimina') as HTMLButtonElement;
 
     pulsante.click();
     await fixture.whenStable();
@@ -175,8 +175,8 @@ describe('Dettaglio', () => {
   });
 
   it('should give a colour to every state', () => {
-    expect(component.classeStato("Online")).toBe("text-bg-success");
-    expect(component.classeStato("Offline")).toBe("text-bg-danger");
-    expect(component.classeStato("Manutenzione")).toBe("text-bg-warning");
+    expect(component.classeStato("Online")).toBe("pastiglia--online");
+    expect(component.classeStato("Offline")).toBe("pastiglia--offline");
+    expect(component.classeStato("Manutenzione")).toBe("pastiglia--manutenzione");
   });
 });

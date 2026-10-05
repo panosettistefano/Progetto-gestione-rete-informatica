@@ -5,9 +5,36 @@
     bottom: 0;
     width: 22rem;
     max-width: 100%;
+    padding: 1.5rem;
+    /* colonna flex: il contenuto viene centrato in verticale quando avanza spazio.
+       "safe" serve a non tagliare fuori il contenuto lungo: se non c'è spazio
+       sufficiente torna in alto da solo, invece di sbordare sopra lo schermo
+       dove non si potrebbe più raggiungere nemmeno scorrendo. */
+    display: flex;
+    flex-direction: column;
+    justify-content: safe center;
     overflow-y: auto;
-    border-radius: 0;
-    border-left: 1px solid #dee2e6;
-    box-shadow: -4px 0 12px rgba(0, 0, 0, 0.08);
+    background-color: var(--fondo-pannello);
+    border: 0;
+    border-left: 1px solid var(--accento);
+    box-shadow: -8px 0 24px rgba(0, 0, 0, 0.55);
     z-index: 1040;
+}
+
+/* i testi di aiuto stanno stretti: si allineano con il resto invece di sembrare appiccicati */
+.sidebar-dettaglio .aiuto {
+    margin-top: 0.7rem;
+    line-height: 1.45;
+}
+
+.sidebar-dettaglio .griglia-campi {
+    margin-bottom: 1.2rem;
+}
+
+.sidebar-dettaglio .sezione {
+    margin-bottom: 0.6rem;
+}
+
+.sidebar-dettaglio hr {
+    margin: 1.2rem 0;
 }

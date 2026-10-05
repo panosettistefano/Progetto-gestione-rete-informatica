@@ -258,28 +258,77 @@ describe('TopologiaService', () => {
     expect(service.dispositivoDettaglio()).toBeNull();
   });
 
-  it('should activate and deactivate a device', () => {
+  it('should switch on the whole network and switch it off again', () => {
     popola();
 
-    service.disattivaStato(3);
+    service.attivaStato(1);
 
-    expect(service.dispositivi()[2].stato).toBe("Offline");
+    expect(service.dispositivi().every(d => d.stato == "Online")).toBe(true);
 
-    service.attivaStato(3);
+    service.disattivaStato(1);
 
-    expect(service.dispositivi()[2].stato).toBe("Online");
+    expect(service.dispositivi().every(d => d.stato == "Offline")).toBe(true);
   });
 
-  it('should not activate the other devices', () => {
+  it('should not let a switch or a PC switch itself on', () => {
     popola();
 
-    service.disattivaStato(3);
-    service.disattivaStato(4);
+    service.disattivaStato(1);
 
+    service.attivaStato(2);
     service.attivaStato(3);
 
+    expect(service.dispositivi().every(d => d.stato == "Offline")).toBe(true);
+  });
+
+  it('should switch a device on as soon as it is connected to a running router', () => {
+    popola();
+
+    service.attivaStato(1);
+    service.aggiungiDispositivo("PC");
+
+    const nuovo = service.dispositivi()[4];
+
+    expect(nuovo.stato).toBe("Offline");
+
+    service.creaConnessione(2, nuovo.id);
+
+    expect(service.dispositivi()[4].stato).toBe("Online");
+  });
+
+  it('should switch off the devices left without a connection', () => {
+    popola();
+
+    service.attivaStato(1);
+    service.eliminaConnessione(2);
+
+    expect(service.dispositivi()[0].stato).toBe("Online");
+    expect(service.dispositivi()[1].stato).toBe("Online");
+    expect(service.dispositivi()[2].stato).toBe("Offline");
+    expect(service.dispositivi()[3].stato).toBe("Online");
+  });
+
+  it('should not let the signal pass through a router that is off', () => {
+    service.dispositivi.set([
+      dispositivo(1, "Router", "Router-01", 100, 100),
+      dispositivo(2, "Router", "Router-02", 300, 100),
+      dispositivo(3, "PC", "PC-01", 500, 100)
+    ]);
+
+    service.connessioni.set([
+      { id: 1, sourceId: 1, targetId: 2 },
+      { id: 2, sourceId: 2, targetId: 3 }
+    ]);
+
+    service.attivaStato(1);
+
+    expect(service.dispositivi()[0].stato).toBe("Online");
+    expect(service.dispositivi()[1].stato).toBe("Offline");
+    expect(service.dispositivi()[2].stato).toBe("Offline");
+
+    service.attivaStato(2);
+
     expect(service.dispositivi()[2].stato).toBe("Online");
-    expect(service.dispositivi()[3].stato).toBe("Offline");
   });
 
   it('should switch on every connected device when the router is activated', () => {

@@ -20,7 +20,7 @@
 import { mkdir } from 'node:fs/promises';
 import { chromium } from 'playwright-core';
 
-const INDIRIZZO = 'http://localhost:4200';
+const INDIRIZZO = process.argv[2] ?? 'http://localhost:4200';
 const CARTELLA = new URL('../docs/', import.meta.url).pathname;
 
 const browser = await chromium.launch({ channel: 'chrome' });
@@ -74,6 +74,18 @@ async function collega(varPrimo, varSecondo) {
     await pagina.locator('app-strumenti button', { hasText: "Modifica" }).first().click();
 }
 
+// Accende un dispositivo dal suo dettaglio. Su un router si accendono anche
+// tutti quelli raggiungibili: serve a far vedere i colori nelle immagini,
+// perche' i dispositivi appena aggiunti nascono spenti.
+async function accendi(varIndice) {
+    await dispositivo(varIndice).click({ button: 'right' });
+    await pagina.waitForSelector('app-dettaglio aside');
+    await pagina.locator('app-dettaglio button', { hasText: "Attiva stato" }).click();
+    await pagina.waitForTimeout(250);
+    await pagina.locator('app-dettaglio button[aria-label="Chiudi il dettaglio"]').click();
+    await pagina.waitForTimeout(250);
+}
+
 async function scatta(varNome) {
     await pagina.waitForTimeout(400);
     await pagina.screenshot({ path: CARTELLA + varNome + '.png', fullPage: true });
@@ -99,6 +111,9 @@ await scatta('canvas');
 await collega(0, 1);
 await collega(1, 2);
 await collega(1, 3);
+
+// accendo il router: si accendono anche lo switch e i due PC collegati
+await accendi(0);
 
 await scatta('connessioni');
 

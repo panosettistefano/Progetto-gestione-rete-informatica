@@ -18,6 +18,6 @@ describe('App', () => {
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.navbar-brand')?.textContent).toContain('Gestione rete informatica');
+    expect(compiled.querySelector('.titolo')?.textContent).toContain('Gestione rete informatica');
   });
 });

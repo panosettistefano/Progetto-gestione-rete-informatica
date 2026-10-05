@@ -1,18 +1,43 @@
+:host {
+    display: block;
+}
+
+.intestazione {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.9rem;
+}
+
+.intestazione .pannello-titolo {
+    flex: 1;
+}
+
 .viewport {
-    overflow: auto;
     max-width: 100%;
+    overflow: auto;
 }
 
 .piano {
     position: relative;
-    background-color: #ffffff;
-    background-image: linear-gradient(#eaeef3 1px, transparent 1px),
-        linear-gradient(90deg, #eaeef3 1px, transparent 1px);
-    background-size: 40px 40px;
-    border: 1px solid #dee2e6;
-    border-radius: 0.5rem;
+    /* la tavola ha una larghezza fissa: su schermi larghi si centra nel pannello
+       invece di restare incollata a sinistra con tutto il vuoto a destra.
+       Quando lo spazio non basta i margini automatici valgono zero da soli, quindi
+       resta scorrevole e non si perde niente ai bordi. */
+    margin: 0 auto;
+    /* le parentesi del dispositivo selezionato escono dal bordo di qualche pixel:
+       senza questo comparirebbe la barra di scorrimento orizzontale */
+    overflow: hidden;
+    background-color: #040807;
+    background-image: linear-gradient(rgba(60, 224, 180, 0.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(60, 224, 180, 0.07) 1px, transparent 1px);
+    background-size: 50px 50px;
+    border: 1px solid var(--bordo);
 }
 
+/* Niente filter: drop-shadow() su questo gruppo. Su un SVG grande il browser lo
+   rasterizza in una texture a risoluzione ridotta e poi la ingrandisce: con molte
+   linee si vedono sbavature e scalettature. Le linee sono disegnate lisce. */
 .linee {
     position: absolute;
     inset: 0;
@@ -23,8 +48,8 @@
 }
 
 .linee line {
-    stroke: #6c757d;
-    stroke-width: 3;
+    stroke: var(--accento);
+    stroke-width: 2;
     stroke-linecap: round;
 }
 
@@ -34,7 +59,7 @@
     left: 50%;
     transform: translate(-50%, -50%);
     margin: 0;
-    color: #adb5bd;
+    color: var(--testo-tenue);
     text-align: center;
     pointer-events: none;
 }
@@ -48,9 +73,9 @@
     justify-content: center;
     gap: 0.15rem;
     transform: translate(-50%, -50%);
-    border: 3px solid #6c757d;
-    border-radius: 0.75rem;
-    background-color: #ffffff;
+    background-color: var(--fondo-alto);
+    border: 3px solid var(--colore, var(--bordo-acceso));
+    color: var(--colore, var(--testo));
     user-select: none;
     touch-action: none;
     cursor: grab;
@@ -61,10 +86,34 @@
 }
 
 .dispositivo.selezionato {
-    transform: translate(-50%, -50%) scale(1.1);
-    box-shadow: 0 0 0 5px rgba(13, 110, 253, 0.45);
+    box-shadow: 0 0 0 1px var(--accento), 0 0 14px rgba(60, 224, 180, 0.35);
 }
 
+/* il mirino: due parentesi agli spigoli opposti, come nel riferimento */
+.dispositivo.selezionato::before,
+.dispositivo.selezionato::after {
+    content: '';
+    position: absolute;
+    width: 10px;
+    height: 10px;
+}
+
+.dispositivo.selezionato::before {
+    top: -3px;
+    left: -3px;
+    border-top: 2px solid var(--accento);
+    border-left: 2px solid var(--accento);
+}
+
+.dispositivo.selezionato::after {
+    bottom: -3px;
+    right: -3px;
+    border-bottom: 2px solid var(--accento);
+    border-right: 2px solid var(--accento);
+}
+
+/* questa regola deve restare dopo .dispositivo:active: hanno la stessa
+   specificità, quindi vince l'ultima, e in modalità collegamento serve il mirino */
 .modalita-connect .dispositivo {
     cursor: crosshair;
 }
@@ -74,27 +123,25 @@
 }
 
 .dispositivo .nome {
-    font-size: 0.7rem;
-    color: #212529;
+    font-size: 0.68rem;
+    color: var(--testo);
     white-space: nowrap;
 }
 
+/* spento, ma non grigio: il colore dice il tipo di dispositivo e deve restare
+   leggibile anche quando è offline, che è lo stato di partenza di tutti */
 .dispositivo-offline {
-    opacity: 0.45;
-    filter: grayscale(1);
+    opacity: 0.6;
 }
 
 .dispositivo-pc {
-    border-color: #0d6efd;
-    color: #0d6efd;
+    --colore: var(--colore-pc);
 }
 
 .dispositivo-switch {
-    border-color: #198754;
-    color: #198754;
+    --colore: var(--colore-switch);
 }
 
 .dispositivo-router {
-    border-color: #fd7e14;
-    color: #fd7e14;
+    --colore: var(--colore-router);
 }
