@@ -242,7 +242,7 @@ router, al centro lo switch, in basso i due PC. Ogni dispositivo ha la sua icona
 suo colore, e sotto l'icona si legge il nome, che viene assegnato in modo progressivo
 (`Router-01`, `Switch-01`, `PC-01`, `PC-02`).
 
-![Canvas con i dispositivi](docs/canvas.png)
+![Canvas con i dispositivi](esame_angular/docs/canvas.png)
 
 ### Connessioni
 
@@ -252,7 +252,7 @@ partono dal centro esatto delle icone. Il contatore in alto a destra conferma
 `Dispositivi: 4 - Connessioni: 3`. Trascinando un dispositivo le sue linee lo seguono,
 perché gli estremi arrivano da un `computed` che dipende dai signals.
 
-![Dispositivi collegati](docs/connessioni.png)
+![Dispositivi collegati](esame_angular/ocs/connessioni.png)
 
 ### Dettaglio del dispositivo
 
@@ -262,7 +262,7 @@ hostname e stato, qui mostrato con il badge `Offline`. Sotto ci sono il pulsante
 dei **Collegamenti** con il pulsante per eliminarne uno e, in fondo, **Elimina
 dispositivo**, che toglie anche tutti i suoi collegamenti dopo una conferma.
 
-![Dettaglio del dispositivo](docs/dettaglio.png)
+![Dettaglio del dispositivo](esame_angular/docs/dettaglio.png)
 
 ### Salvataggio e ricaricamento in locale (Soluzione A)
 
@@ -271,7 +271,7 @@ canvas riparte vuoto e **Carica** riporta dal Local Storage la stessa topologia,
 stessi dispositivi nelle stesse posizioni e gli stessi collegamenti. È il pulsante
 evidenziato nell'immagine.
 
-![Salvataggio e caricamento in locale](docs/salvataggio.png)
+![Salvataggio e caricamento in locale](esame_angular/docs/salvataggio.png)
 
 ### Salvataggio sul server (Soluzione B)
 
